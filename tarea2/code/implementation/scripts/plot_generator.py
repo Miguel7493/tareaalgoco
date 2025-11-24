@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
-Generador de gráficos para análisis de algoritmos de CppCorp
+Generador de graficos para analisis de algoritmos de CppCorp
 
 Referencias:
 - Enunciado Tarea 2, INF-221 Algoritmos y Complejidad 2025-2
 
-Descripción:
-Este script lee los archivos de medición generados por los algoritmos
-y crea gráficos comparativos en formato PNG.
+Descripciï¿½n:
+Este script lee los archivos de mediciï¿½n generados por los algoritmos
+y crea grï¿½ficos comparativos en formato PNG.
 
-Los gráficos se guardan en: code/implementation/data/plots/
+Los grï¿½ficos se guardan en: code/implementation/data/plots/
 """
 
 import os
@@ -22,7 +23,7 @@ from collections import defaultdict
 
 def parse_measurement_file(filepath):
     """
-    Lee un archivo de medición y extrae los datos
+    Lee un archivo de mediciï¿½n y extrae los datos
 
     Returns:
         dict con las claves: n, time_ms, memory_kb, result
@@ -58,14 +59,14 @@ def collect_measurements(measurements_dir):
     """
     measurements = defaultdict(list)
 
-    # Buscar todos los archivos de medición
+    # Buscar todos los archivos de mediciï¿½n
     pattern = os.path.join(measurements_dir, "*.txt")
     files = glob.glob(pattern)
 
     for filepath in files:
         filename = os.path.basename(filepath)
 
-        # Extraer información del nombre del archivo
+        # Extraer informaciï¿½n del nombre del archivo
         # Formato esperado: testcases_{n}_{id}_{algorithm}.txt
         match = re.search(r'testcases_(\d+)_\w+_([^.]+)\.txt', filename)
         if match:
@@ -87,7 +88,7 @@ def collect_measurements(measurements_dir):
     return measurements
 
 def plot_time_comparison(measurements, output_dir):
-    """Genera gráfico de comparación de tiempos"""
+    """Genera grï¿½fico de comparaciï¿½n de tiempos"""
     plt.figure(figsize=(12, 8))
 
     algorithms = ['brute-force', 'greedy1', 'greedy2', 'dynamic-programming']
@@ -96,7 +97,7 @@ def plot_time_comparison(measurements, output_dir):
     labels = {'brute-force': 'Fuerza Bruta',
               'greedy1': 'Greedy 1',
               'greedy2': 'Greedy 2',
-              'dynamic-programming': 'Programación Dinámica'}
+              'dynamic-programming': 'Programaciï¿½n Dinï¿½mica'}
 
     for algo in algorithms:
         if algo in measurements and measurements[algo]:
@@ -109,20 +110,20 @@ def plot_time_comparison(measurements, output_dir):
                     label=labels.get(algo, algo),
                     linewidth=2, markersize=6)
 
-    plt.xlabel('Número de empleados (n)', fontsize=12)
-    plt.ylabel('Tiempo de ejecución (ms)', fontsize=12)
-    plt.title('Comparación de Tiempos de Ejecución', fontsize=14, fontweight='bold')
+    plt.xlabel('Nï¿½mero de empleados (n)', fontsize=12)
+    plt.ylabel('Tiempo de ejecuciï¿½n (ms)', fontsize=12)
+    plt.title('Comparaciï¿½n de Tiempos de Ejecuciï¿½n', fontsize=14, fontweight='bold')
     plt.legend(fontsize=10)
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
 
     output_file = os.path.join(output_dir, 'time_comparison.png')
     plt.savefig(output_file, dpi=300, bbox_inches='tight')
-    print(f"Gráfico generado: {output_file}")
+    print(f"Grï¿½fico generado: {output_file}")
     plt.close()
 
 def plot_time_log_scale(measurements, output_dir):
-    """Genera gráfico de tiempos con escala logarítmica"""
+    """Genera grï¿½fico de tiempos con escala logarï¿½tmica"""
     plt.figure(figsize=(12, 8))
 
     algorithms = ['brute-force', 'greedy1', 'greedy2', 'dynamic-programming']
@@ -131,7 +132,7 @@ def plot_time_log_scale(measurements, output_dir):
     labels = {'brute-force': 'Fuerza Bruta',
               'greedy1': 'Greedy 1',
               'greedy2': 'Greedy 2',
-              'dynamic-programming': 'Programación Dinámica'}
+              'dynamic-programming': 'Programaciï¿½n Dinï¿½mica'}
 
     for algo in algorithms:
         if algo in measurements and measurements[algo]:
@@ -144,20 +145,20 @@ def plot_time_log_scale(measurements, output_dir):
                         label=labels.get(algo, algo),
                         linewidth=2, markersize=6)
 
-    plt.xlabel('Número de empleados (n)', fontsize=12)
-    plt.ylabel('Tiempo de ejecución (ms) - Escala Log', fontsize=12)
-    plt.title('Comparación de Tiempos (Escala Logarítmica)', fontsize=14, fontweight='bold')
+    plt.xlabel('Nï¿½mero de empleados (n)', fontsize=12)
+    plt.ylabel('Tiempo de ejecuciï¿½n (ms) - Escala Log', fontsize=12)
+    plt.title('Comparaciï¿½n de Tiempos (Escala Logarï¿½tmica)', fontsize=14, fontweight='bold')
     plt.legend(fontsize=10)
     plt.grid(True, alpha=0.3, which='both')
     plt.tight_layout()
 
     output_file = os.path.join(output_dir, 'time_comparison_log.png')
     plt.savefig(output_file, dpi=300, bbox_inches='tight')
-    print(f"Gráfico generado: {output_file}")
+    print(f"Grï¿½fico generado: {output_file}")
     plt.close()
 
 def plot_memory_comparison(measurements, output_dir):
-    """Genera gráfico de comparación de uso de memoria"""
+    """Genera grï¿½fico de comparaciï¿½n de uso de memoria"""
     plt.figure(figsize=(12, 8))
 
     algorithms = ['brute-force', 'greedy1', 'greedy2', 'dynamic-programming']
@@ -166,7 +167,7 @@ def plot_memory_comparison(measurements, output_dir):
     labels = {'brute-force': 'Fuerza Bruta',
               'greedy1': 'Greedy 1',
               'greedy2': 'Greedy 2',
-              'dynamic-programming': 'Programación Dinámica'}
+              'dynamic-programming': 'Programaciï¿½n Dinï¿½mica'}
 
     for algo in algorithms:
         if algo in measurements and measurements[algo]:
@@ -180,20 +181,20 @@ def plot_memory_comparison(measurements, output_dir):
                         label=labels.get(algo, algo),
                         linewidth=2, markersize=6)
 
-    plt.xlabel('Número de empleados (n)', fontsize=12)
+    plt.xlabel('Nï¿½mero de empleados (n)', fontsize=12)
     plt.ylabel('Uso de memoria (KB)', fontsize=12)
-    plt.title('Comparación de Uso de Memoria', fontsize=14, fontweight='bold')
+    plt.title('Comparaciï¿½n de Uso de Memoria', fontsize=14, fontweight='bold')
     plt.legend(fontsize=10)
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
 
     output_file = os.path.join(output_dir, 'memory_comparison.png')
     plt.savefig(output_file, dpi=300, bbox_inches='tight')
-    print(f"Gráfico generado: {output_file}")
+    print(f"Grï¿½fico generado: {output_file}")
     plt.close()
 
 def plot_algorithm_efficiency(measurements, output_dir):
-    """Genera gráfico de eficiencia (resultado vs tiempo)"""
+    """Genera grï¿½fico de eficiencia (resultado vs tiempo)"""
     plt.figure(figsize=(12, 8))
 
     algorithms = ['greedy1', 'greedy2', 'dynamic-programming']
@@ -201,7 +202,7 @@ def plot_algorithm_efficiency(measurements, output_dir):
               'dynamic-programming': 'purple'}
     labels = {'greedy1': 'Greedy 1',
               'greedy2': 'Greedy 2',
-              'dynamic-programming': 'Programación Dinámica'}
+              'dynamic-programming': 'Programaciï¿½n Dinï¿½mica'}
 
     for algo in algorithms:
         if algo in measurements and measurements[algo]:
@@ -214,7 +215,7 @@ def plot_algorithm_efficiency(measurements, output_dir):
                        label=labels.get(algo, algo),
                        s=50, alpha=0.6)
 
-    plt.xlabel('Tiempo de ejecución (ms)', fontsize=12)
+    plt.xlabel('Tiempo de ejecuciï¿½n (ms)', fontsize=12)
     plt.ylabel('Productividad obtenida', fontsize=12)
     plt.title('Eficiencia: Productividad vs Tiempo', fontsize=14, fontweight='bold')
     plt.legend(fontsize=10)
@@ -223,11 +224,11 @@ def plot_algorithm_efficiency(measurements, output_dir):
 
     output_file = os.path.join(output_dir, 'efficiency_comparison.png')
     plt.savefig(output_file, dpi=300, bbox_inches='tight')
-    print(f"Gráfico generado: {output_file}")
+    print(f"Grï¿½fico generado: {output_file}")
     plt.close()
 
 def plot_individual_algorithm(measurements, algorithm, output_dir):
-    """Genera gráfico detallado de un algoritmo específico"""
+    """Genera grï¿½fico detallado de un algoritmo especï¿½fico"""
     if algorithm not in measurements or not measurements[algorithm]:
         return
 
@@ -237,19 +238,19 @@ def plot_individual_algorithm(measurements, algorithm, output_dir):
 
     plt.figure(figsize=(10, 6))
     plt.plot(n_values, times, 'o-', color='blue', linewidth=2, markersize=8)
-    plt.xlabel('Número de empleados (n)', fontsize=12)
-    plt.ylabel('Tiempo de ejecución (ms)', fontsize=12)
+    plt.xlabel('Nï¿½mero de empleados (n)', fontsize=12)
+    plt.ylabel('Tiempo de ejecuciï¿½n (ms)', fontsize=12)
     plt.title(f'Rendimiento: {algorithm}', fontsize=14, fontweight='bold')
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
 
     output_file = os.path.join(output_dir, f'{algorithm}_performance.png')
     plt.savefig(output_file, dpi=300, bbox_inches='tight')
-    print(f"Gráfico generado: {output_file}")
+    print(f"Grï¿½fico generado: {output_file}")
     plt.close()
 
 def main():
-    """Función principal"""
+    """Funciï¿½n principal"""
     # Determinar directorios
     if len(sys.argv) > 1:
         measurements_dir = sys.argv[1]
@@ -263,31 +264,31 @@ def main():
     os.makedirs(plots_dir, exist_ok=True)
 
     print(f"Leyendo mediciones de: {measurements_dir}")
-    print(f"Guardando gráficos en: {plots_dir}")
+    print(f"Guardando grï¿½ficos en: {plots_dir}")
     print("=" * 60)
 
     # Recolectar mediciones
     measurements = collect_measurements(measurements_dir)
 
     if not measurements:
-        print("No se encontraron archivos de medición.")
+        print("No se encontraron archivos de mediciï¿½n.")
         return
 
     print(f"\nAlgoritmos encontrados: {list(measurements.keys())}")
 
-    # Generar gráficos
-    print("\nGenerando gráficos...")
+    # Generar grï¿½ficos
+    print("\nGenerando grï¿½ficos...")
     plot_time_comparison(measurements, plots_dir)
     plot_time_log_scale(measurements, plots_dir)
     plot_memory_comparison(measurements, plots_dir)
     plot_algorithm_efficiency(measurements, plots_dir)
 
-    # Gráficos individuales
+    # Grï¿½ficos individuales
     for algo in measurements.keys():
         plot_individual_algorithm(measurements, algo, plots_dir)
 
     print("\n" + "=" * 60)
-    print("Generación de gráficos completada!")
+    print("Generaciï¿½n de grï¿½ficos completada!")
 
 if __name__ == "__main__":
     main()
