@@ -1,0 +1,120 @@
+El objetivo de esta tarea \tnum~ es comparar diferentes técnicas de resolución de un mismo problema, evaluando su \textbf{tiempo de ejecución} y \textbf{uso de memoria}. 
+
+Deberán implementar tres enfoques: un \textbf{algoritmo de fuerza bruta}, dos \textbf{heurísticas greedy subóptimas} (algoritmos que no garantizan la solución óptima) y un \textbf{algoritmo de programación dinámica}. Además, se analizará el rendimiento y la calidad de las soluciones, especialmente en los métodos greedy, para determinar qué tan cercanas están al resultado óptimo.
+
+\subsection{Problema}
+
+En \textbf{CppCorp}, una empresa de desarrollo de software fundada en 2001, se busca optimizar la productividad de los desarrolladores. A lo largo de los años, la empresa ha crecido y cuenta con un equipo diverso de programadores con distintos lenguajes favoritos y niveles de experiencia. En el año 2025, Carlos fue nombrado jefe de la empresa y se propuso mejorar la eficiencia y productividad de todos los equipos de desarrollo.
+
+Los empleados están organizados en fila según el orden de ingreso a la empresa, es decir, el empleado $i$ fue el $i$-ésimo en entrar. Cada desarrollador $i$ tiene un \textbf{lenguaje de programación favorito} $C_i$ y si programa en su lenguaje favorito su productividad es $A_i$, mientras que si programa en otro lenguaje su productividad es $B_i$.
+
+Carlos desea formar equipos que maximicen la \textbf{productividad total de la empresa}, definida como la suma de las productividades de todos los equipos. Cada desarrollador \textbf{pertenece exactamente a un equipo}, y no hay empleados fuera de los equipos. Para ello, los equipos se forman como \textbf{segmentos contiguos no vacíos} de la fila de empleados.
+
+La productividad individual de un empleado $i$ dado que programa con el lenguaje $L$ se define como
+
+\[
+p_i(L) =
+\begin{cases}
+A_i & \text{si } C_i = L \\
+B_i & \text{si } C_i \neq L
+\end{cases}
+\]
+
+La productividad de un equipo se obtiene sumando las productividades individuales de todos los miembros del equipo usando el lenguaje que más miembros prefieren, y en caso de empate se toma la opción que genere la menor productividad posible. Formalmente, para un segmento $[l,r]$, la productividad del equipo se define como:
+\[
+\text{productividad\_equipo}(l,r) = \min_{L \in \arg\max_\ell |\{ i \in [l,r] : C_i = \ell \}|} \sum_{i=l}^{r} p_i(L)
+\]
+
+Aquí, $\arg\max_x f(x)$ representa \textbf{el conjunto de valores $x$ que maximizan $f(x)$}. En nuestra fórmula, $|\{ i \in [l,r] : C_i = \ell \}|$ representa la cantidad de miembros del segmento cuyo lenguaje favorito es $\ell$, y por lo tanto
+\[
+\arg\max_\ell |\{ i \in [l,r] : C_i = \ell \}|
+\]
+es el \textbf{conjunto de lenguajes más frecuentes} en el segmento.
+
+La \textbf{productividad total de la empresa} se obtiene sumando las productividades de todos los segmentos que forman los equipos:
+\[
+\text{ProdTotal} = \sum_{\text{segmentos } [l,r]} \text{productividad\_equipo}(l,r)
+\]
+
+Cada segmento $[l,r]$ contribuye con su propia productividad según las reglas descritas, y el objetivo es encontrar la \textbf{partición óptima} de la fila que maximice $\text{ProdTotal}$, asegurando que todos los desarrolladores estén incluidos en algún equipo.
+
+\subsubsection*{Dominio de los valores y casos de prueba}
+
+Para esta tarea, los valores de los parámetros cumplen las siguientes restricciones:
+
+\begin{itemize}
+    \item $n$, la cantidad de empleados, es un entero tal que $1 \le n \le 10^4$.
+    \item $A_i$ y $B_i$, las productividades de cada empleado, son enteros en el rango $[-10^9, 10^9]$.
+    \item $C_i$ es un string formado únicamente por letras minúsculas del alfabeto inglés, sin espacios, que indica el lenguaje favorito del empleado $i$.
+\end{itemize}
+
+\subsection{Entrada y salida}
+
+\subsubsection*{Formato de entrada}
+
+El input se presenta de la siguiente manera:
+
+\begin{verbatim}
+n
+A_1 B_1 C_1
+A_2 B_2 C_2
+...
+A_n B_n C_n
+\end{verbatim}
+
+\subsubsection*{Formato de salida}
+
+\begin{verbatim}
+ProdTotal
+\end{verbatim}
+
+donde \texttt{ProdTotal} es la productividad máxima que se puede obtener al formar los equipos de acuerdo a las reglas descritas anteriormente.
+
+\subsubsection*{Ejemplo de entrada}
+
+\begin{verbatim}
+5
+10 5 cpp
+-8 9 python
+-20 4 cpp
+-7 2 java
+30 -5 cpp
+\end{verbatim}
+
+\subsubsection*{Ejemplo de salida}
+
+\begin{verbatim}
+31
+\end{verbatim}
+
+\subsubsection*{Explicación}
+
+
+Se pueden formar los siguientes equipos para maximizar la productividad:
+
+\begin{itemize}
+    \item \textbf{Equipo 1:} Empleados $1$
+        \begin{itemize}
+            \item Lenguaje más frecuente: \texttt{cpp} (empleados $1$)  
+            \item Productividad: $A_1 = 10$
+        \end{itemize}
+    \item \textbf{Equipo 2:} Empleados $2$, $3$ y $4$
+        \begin{itemize}
+            \item Frecuencia máxima de lenguajes: \texttt{cpp}, \texttt{python} y \texttt{java} aparecen una vez cada uno  
+            \item Para desempatar, se elige el lenguaje que genere la mínima productividad del equipo
+            \item Productividad:  
+            \begin{itemize}
+                \item Lenguaje \texttt{cpp}: $B_2 + A_3 + B_4 = 9 + (-20) + 2 = -9$
+                \item Lenguaje \texttt{python}: $A_2 + B_3 + B_4 = -8 + 4 + 2 = -2$
+                \item Lenguaje \texttt{java}: $B_2 + B_3 + A_4 = 9 + 4 + (-7) = 6$
+            \end{itemize}
+            \item Elegimos el mínimo: $-9$
+        \end{itemize}
+    \item \textbf{Equipo 3:} Empleado $5$
+        \begin{itemize}
+            \item Lenguaje más frecuente: \texttt{cpp} (empleado $5$)  
+            \item Productividad: $A_5 = 30$
+        \end{itemize}
+\end{itemize}
+
+La productividad total máxima se obtiene sumando los equipos: $10 + (-9) + 30 = 31$.

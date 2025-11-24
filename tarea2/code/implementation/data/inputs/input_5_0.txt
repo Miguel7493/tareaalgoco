@@ -1,0 +1,6 @@
+5
+10 5 cpp
+8 3 python
+6 4 cpp
+7 2 java
+5 5 cpp

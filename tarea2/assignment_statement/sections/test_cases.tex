@@ -1,0 +1,40 @@
+\subsubsection{Generación de casos de prueba}
+
+Los estudiantes deberán implementar un generador de casos de prueba en Python llamado \texttt{testcases\_generator.py}, ubicado en:
+
+\begin{center}
+    \texttt{code/implementation/scripts/testcases\_generator.py}
+\end{center}
+
+\textbf{Requisitos del generador:}
+\begin{itemize}
+    \item Debe generar archivos de entrada válidos para el problema de productividad de desarrolladores.
+    \item Cada archivo de entrada debe llamarse:
+    \[
+        \texttt{testcases\_\{n\}\_\{i\}.txt}
+    \]
+    donde:
+    \begin{itemize}
+        \item \texttt{\{n\}} representa la cantidad de empleados del caso de prueba.
+        \item \texttt{\{i\}} es un identificador único para diferenciar múltiples casos con la misma cantidad de empleados.
+    \end{itemize}
+    \item Formato del archivo de entrada:
+    \begin{itemize}
+        \item La primera línea contiene un entero $n$, la cantidad de empleados, con $1 \le n \le 10^4$.
+        \item Las siguientes $n$ líneas contienen tres elementos por empleado:
+        \[
+        A_i \ B_i \ C_i
+        \]
+        donde:
+        \begin{itemize}
+            \item $A_i$ es la productividad del empleado $i$ cuando programa con su lenguaje favorito (entero entre $-10^9$ y $10^9$).
+            \item $B_i$ es la productividad del empleado $i$ cuando programa con un lenguaje distinto al favorito (entero entre $-10^9$ y $10^9$).
+            \item $C_i$ es el lenguaje favorito del empleado $i$, representado por un string de letras minúsculas (sin espacios).
+        \end{itemize}
+    \end{itemize}
+    \item El generador debe permitir crear múltiples casos de prueba de manera automática, variando la cantidad de empleados, los valores de productividad y los lenguajes favoritos.
+\end{itemize}
+
+\begin{mdframed}
+    Los archivos generados serán utilizados por los algoritmos implementados en C++ para probar la corrección y eficiencia de las soluciones de fuerza bruta, greedy y programación dinámica.
+\end{mdframed}

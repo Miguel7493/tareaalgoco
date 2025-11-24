@@ -1,0 +1,76 @@
+En esta sección se describen los pasos a seguir para completar la tarea, la cual consiste en desarrollar código
+en C++ «\nameref{subsec:implementations}» y en realizar un informe «\nameref{subsec:report}». Se espera que cada
+uno de los pasos se realice de manera ordenada y siguiendo las instrucciones dadas.
+
+\begin{mdframed}
+    Abra este documento en algún lector de PDF que permita hipervínculos, ya que en este documento el texto en
+    color \textcolor{blue}{azul} suele indicar un hipervínculo.
+\end{mdframed}
+
+\begin{enumerate}[(1)]
+    \item En caso de dudas, enviar preguntas al foro de la Tarea 2 o a los ayudantes del curso. 
+    Cualquier modificación o aclaración se informará tanto por aula como por los canales oficiales de GitHub Classroom.
+
+    \item Todo lo necesario para realizar la tarea se encuentra en el repositorio de GitHub Classroom: 
+    \begin{center}
+        \url{TODO: Link classroom}
+    \end{center}
+    Nota: La estructura de archivos y el template del proyecto se encuentran disponibles en el repositorio generado. 
+    El repositorio será automáticamente privado y contendrá toda la estructura necesaria para completar la tarea.
+
+    \item El repositorio generado contiene toda la información oficial y estructura necesaria para completar la tarea.
+
+\end{enumerate}
+
+\subsection{Implementaciones} \label{subsec:implementations}
+
+\begin{enumerate}[(1)]
+    \item Implementar cada uno de los algoritmos en C++:
+    \begin{itemize}
+        \item \textbf{Algoritmo Fuerza Bruta:} Resolver el problema de forma exhaustiva utilizando fuerza bruta. \\
+        Archivo: \texttt{code/implementation/algorithms/brute-force.cpp}.
+        
+        \item \textbf{Algoritmos Greedy:} Implementar dos heurísticas greedy (\textit{subóptimas}) para el problema. \\
+        Archivos: \texttt{code/implementation/algorithms/greedy\{1,2\}.cpp}.
+        
+        \item \textbf{Programación Dinámica:} Implementar la solución óptima del problema mediante programación dinámica. \\
+        Archivo: \texttt{code/implementation/algorithms/dynamic-programming.cpp}.
+    \end{itemize}
+
+
+    \item Mediciones de tiempo y memoria: Implementar el programa principal en C++ \texttt{code/implementation/general.cpp} y su respectivo \texttt{makefile} que ejecute los algoritmos y genere archivos de salida en los directorios:
+    \begin{itemize}
+        \item \texttt{code/implementation/data/measurements/}
+        \item \texttt{code/implementation/data/outputs/}
+    \end{itemize}
+
+    \item Generación de gráficos: Implementar scripts en Python que lean los archivos de medición y generen gráficos en formato PNG en:
+    \begin{itemize}
+        \item \texttt{code/implementation/data/plots/}
+        \item Scripts de ejemplo: \texttt{code/implementation/scripts/testcases\_generator.py} y \texttt{plot\_generator.py}.
+    \end{itemize}
+
+    \item Documentación: Documentar cada uno de los pasos anteriores:
+    \begin{itemize}
+        \item Completar el archivo \texttt{README.md} del directorio \texttt{code}.
+        \item Documentar en cada uno de sus programas, al inicio de cada archivo, fuentes de información, referencias y bibliografía utilizada.
+    \end{itemize}
+\end{enumerate}
+
+\newpage
+\subsection{Informe} \label{subsec:report}
+
+Generar un informe en \LaTeX\ que contenga los resultados obtenidos y una discusión sobre ellos.  
+El template oficial se encuentra en el repositorio de GitHub Classroom en el directorio \texttt{report/} y debe utilizarse en esta entrega:
+
+\begin{mdframed}
+\begin{center}
+    \url{TODO: Link classroom}
+\end{center}
+\end{mdframed}
+
+\begin{itemize}
+    \item No se debe modificar la estructura del informe.
+    \item Las indicaciones se encuentran en el archivo \texttt{README.md} del repositorio y en la plantilla de \LaTeX.
+    \item El informe final compilado (\texttt{reporte.pdf}) debe generarse dentro de la carpeta \texttt{report/}.
+\end{itemize}
