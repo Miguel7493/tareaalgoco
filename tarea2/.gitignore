@@ -15,3 +15,17 @@ code/matrix_multiplication/data/matrix_input/*.txt
 *.out
 *.run.xml
 *.toc
+
+# Binarios compilados de la tarea 2
+code/implementation/brute-force
+code/implementation/greedy1
+code/implementation/greedy2
+code/implementation/dynamic-programming
+code/implementation/general
+
+# Archivos generados por ejecuciones
+code/implementation/data/measurements/*.txt
+!code/implementation/data/measurements/a.txt
+code/implementation/data/outputs/*.txt
+!code/implementation/data/outputs/output_5_0.txt
+code/implementation/data/plots/*.png
