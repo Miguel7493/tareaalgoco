@@ -1,11 +1,11 @@
 import matplotlib.pyplot as plt
-import pandas as pd
 import numpy as np
 import os
 from pathlib import Path
+from collections import defaultdict
 
-# ConfiguraciÛn de estilo para gr·ficos profesionales
-plt.style.use('seaborn-v0_8-darkgrid')
+# Configuraci√≥n de estilo para gr√°ficos profesionales
+plt.style.use('seaborn-v0_8-whitegrid')
 plt.rcParams['figure.figsize'] = (10, 6)
 plt.rcParams['font.size'] = 11
 plt.rcParams['axes.labelsize'] = 12
@@ -22,234 +22,313 @@ PLOTS_DIR = BASE_DIR / 'data' / 'plots'
 # Crear directorio de plots si no existe
 PLOTS_DIR.mkdir(parents=True, exist_ok=True)
 
+ALGORITMOS = {
+    'brute-force': {'nombre': 'Fuerza Bruta', 'color': '#e74c3c', 'marker': 'o'},
+    'greedy1': {'nombre': 'Greedy 1', 'color': '#3498db', 'marker': 's'},
+    'greedy2': {'nombre': 'Greedy 2', 'color': '#2ecc71', 'marker': '^'},
+    'dynamic-programming': {'nombre': 'Prog. Din√°mica', 'color': '#9b59b6', 'marker': 'd'}
+}
+
 def load_measurements():
     """
-    Carga los archivos de mediciones.
-    Se espera que los archivos tengan formato CSV con columnas:
-    n, algorithm, input_type, time_ms, memory_kb, result_value
+    Carga los archivos de mediciones desde archivos .txt con formato:
+    testcase,n,time_ms,memory_kb,result
     """
-    data_frames = []
+    mediciones = defaultdict(list)
+    
+    for file in MEASUREMENTS_DIR.glob('measurements_*.txt'):
+        algo = file.stem.replace('measurements_', '')
+        
+        with open(file, 'r') as f:
+            for linea in f:
+                linea = linea.strip()
+                if not linea:
+                    continue
+                partes = linea.split(',')
+                if len(partes) == 5:
+                    testcase = partes[0]
+                    n = int(partes[1])
+                    time_ms = float(partes[2])
+                    memory_kb = int(partes[3])
+                    result = int(partes[4])
+                    
+                    tipo = "unknown"
+                    if "_random_" in testcase:
+                        tipo = "random"
+                    elif "_bloques_" in testcase:
+                        tipo = "bloques"
+                    
+                    mediciones[algo].append({
+                        'n': n,
+                        'time_ms': time_ms,
+                        'memory_kb': memory_kb,
+                        'result': result,
+                        'tipo': tipo
+                    })
+    
+    return mediciones
 
-    for file in MEASUREMENTS_DIR.glob('*.csv'):
-        df = pd.read_csv(file)
-        data_frames.append(df)
-
-    if not data_frames:
-        print("No se encontraron archivos de mediciones (.csv) en:", MEASUREMENTS_DIR)
-        return None
-
-    return pd.concat(data_frames, ignore_index=True)
-
-def plot_1_time_vs_n(df):
-    """Gr·fico 1: Tiempo de ejecuciÛn vs tamaÒo de entrada (n)"""
-    plt.figure(figsize=(12, 7))
-
-    algorithms = df['algorithm'].unique()
-    colors = ['#e74c3c', '#3498db', '#2ecc71', '#f39c12']
-    markers = ['o', 's', '^', 'D']
-
-    for i, algo in enumerate(algorithms):
-        algo_data = df[df['algorithm'] == algo].groupby('n')['time_ms'].mean().reset_index()
-        plt.plot(algo_data['n'], algo_data['time_ms'],
-                marker=markers[i % len(markers)],
-                color=colors[i % len(colors)],
-                linewidth=2, markersize=8,
-                label=algo, alpha=0.8)
-
-    plt.xlabel('TamaÒo de entrada (n)', fontweight='bold')
-    plt.ylabel('Tiempo de ejecuciÛn (ms)', fontweight='bold')
-    plt.title('ComparaciÛn de Tiempo de EjecuciÛn vs TamaÒo de Entrada',
-              fontweight='bold', pad=20)
-    plt.legend(frameon=True, shadow=True)
-    plt.grid(True, alpha=0.3)
+def plot_1_time_vs_n(mediciones):
+    """Gr√°fico 1: Tiempo de ejecuci√≥n vs tama√±o de entrada (n) - Separado por tipo de input"""
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(18, 7))
+    fig.suptitle('Comparaci√≥n de Tiempo de Ejecuci√≥n vs Tama√±o de Entrada',
+                 fontweight='bold', fontsize=16, y=0.98)
+    
+    # Gr√°fico 1a: Input Random
+    for algo, info in ALGORITMOS.items():
+        if algo not in mediciones:
+            continue
+        
+        datos = mediciones[algo]
+        n_values = defaultdict(list)
+        for d in datos:
+            if d['tipo'] == 'random':
+                n_values[d['n']].append(d['time_ms'])
+        
+        if not n_values:
+            continue
+        
+        x = sorted(n_values.keys())
+        y = [np.mean(n_values[n]) for n in x]
+        
+        ax1.plot(x, y, marker=info['marker'], color=info['color'],
+                linewidth=2.5, markersize=7, label=info['nombre'], alpha=0.85)
+    
+    ax1.set_xlabel('Tama√±o de entrada (n)', fontweight='bold')
+    ax1.set_ylabel('Tiempo de ejecuci√≥n (ms) [Escala Log]', fontweight='bold')
+    ax1.set_title('Input Random', fontweight='bold', pad=15)
+    ax1.set_yscale('log')
+    ax1.legend(frameon=True, shadow=True, loc='upper left')
+    ax1.grid(True, alpha=0.3, which='both')
+    
+    # Gr√°fico 1b: Input Bloques
+    for algo, info in ALGORITMOS.items():
+        if algo not in mediciones:
+            continue
+        
+        datos = mediciones[algo]
+        n_values = defaultdict(list)
+        for d in datos:
+            if d['tipo'] == 'bloques':
+                n_values[d['n']].append(d['time_ms'])
+        
+        if not n_values:
+            continue
+        
+        x = sorted(n_values.keys())
+        y = [np.mean(n_values[n]) for n in x]
+        
+        ax2.plot(x, y, marker=info['marker'], color=info['color'],
+                linewidth=2.5, markersize=7, label=info['nombre'], alpha=0.85)
+    
+    ax2.set_xlabel('Tama√±o de entrada (n)', fontweight='bold')
+    ax2.set_ylabel('Tiempo de ejecuci√≥n (ms) [Escala Log]', fontweight='bold')
+    ax2.set_title('Input Bloques', fontweight='bold', pad=15)
+    ax2.set_yscale('log')
+    ax2.legend(frameon=True, shadow=True, loc='upper left')
+    ax2.grid(True, alpha=0.3, which='both')
+    
     plt.tight_layout()
     plt.savefig(PLOTS_DIR / '01_tiempo_vs_n.png', dpi=300, bbox_inches='tight')
     plt.close()
-    print(" Gr·fico 1 generado: Tiempo vs n")
+    print("‚úì Gr√°fico 1 generado: Tiempo vs n (Random y Bloques separados)")
 
-def plot_2_memory_vs_n(df):
-    """Gr·fico 2: Uso de memoria vs tamaÒo de entrada (n)"""
+def plot_2_memory_vs_n(mediciones):
+    """Gr√°fico 2: Uso de memoria vs tama√±o de entrada (n)"""
     plt.figure(figsize=(12, 7))
-
-    algorithms = df['algorithm'].unique()
-    colors = ['#e74c3c', '#3498db', '#2ecc71', '#f39c12']
-    markers = ['o', 's', '^', 'D']
-
-    for i, algo in enumerate(algorithms):
-        algo_data = df[df['algorithm'] == algo].groupby('n')['memory_kb'].mean().reset_index()
-        plt.plot(algo_data['n'], algo_data['memory_kb'],
-                marker=markers[i % len(markers)],
-                color=colors[i % len(colors)],
-                linewidth=2, markersize=8,
-                label=algo, alpha=0.8)
-
-    plt.xlabel('TamaÒo de entrada (n)', fontweight='bold')
+    
+    for algo, info in ALGORITMOS.items():
+        if algo not in mediciones:
+            continue
+        
+        datos = mediciones[algo]
+        n_values = defaultdict(list)
+        for d in datos:
+            if d['memory_kb'] > 0:
+                n_values[d['n']].append(d['memory_kb'])
+        
+        if not n_values:
+            continue
+        
+        x = sorted(n_values.keys())
+        y = [np.mean(n_values[n]) for n in x]
+        
+        plt.plot(x, y, marker=info['marker'], color=info['color'],
+                linewidth=2, markersize=6, label=info['nombre'], alpha=0.8)
+    
+    plt.xlabel('Tama√±o de entrada (n)', fontweight='bold')
     plt.ylabel('Memoria utilizada (KB)', fontweight='bold')
-    plt.title('ComparaciÛn de Uso de Memoria vs TamaÒo de Entrada',
+    plt.title('Comparaci√≥n de Uso de Memoria vs Tama√±o de Entrada',
               fontweight='bold', pad=20)
     plt.legend(frameon=True, shadow=True)
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
     plt.savefig(PLOTS_DIR / '02_memoria_vs_n.png', dpi=300, bbox_inches='tight')
     plt.close()
-    print(" Gr·fico 2 generado: Memoria vs n")
+    print(" Gr√°fico 2 generado: Memoria vs n")
 
-def plot_3_optimal_vs_n(df):
-    """Gr·fico 3: Valor Ûptimo vs tamaÒo de entrada (n)"""
+def plot_3_optimal_vs_n(mediciones):
+    """Gr√°fico 3: Valor √≥ptimo vs tama√±o de entrada (n)"""
     plt.figure(figsize=(12, 7))
-
-    # Filtrar solo el algoritmo Ûptimo (brute-force o dynamic-programming)
-    optimal_algos = ['brute-force', 'dynamic-programming']
-    df_optimal = df[df['algorithm'].isin(optimal_algos)]
-
-    if len(df_optimal) == 0:
-        print("† No se encontraron datos para algoritmos Ûptimos")
+    
+    # Usar dynamic-programming como √≥ptimo
+    algo_optimo = 'dynamic-programming'
+    if algo_optimo not in mediciones:
+        print("‚ö† No se encontraron datos para dynamic-programming")
         return
-
-    # Agrupar por n y tomar el m·ximo valor (asumiendo problema de maximizaciÛn)
-    optimal_values = df_optimal.groupby('n')['result_value'].max().reset_index()
-
-    plt.plot(optimal_values['n'], optimal_values['result_value'],
-            marker='o', color='#27ae60', linewidth=2.5, markersize=10,
-            label='SoluciÛn ”ptima', alpha=0.8)
-
-    plt.xlabel('TamaÒo de entrada (n)', fontweight='bold')
-    plt.ylabel('Valor de la soluciÛn Ûptima', fontweight='bold')
-    plt.title('EvoluciÛn de la SoluciÛn ”ptima seg˙n TamaÒo de Entrada',
+    
+    datos = mediciones[algo_optimo]
+    n_values = defaultdict(list)
+    for d in datos:
+        n_values[d['n']].append(d['result'])
+    
+    x = sorted(n_values.keys())
+    y = [np.max(n_values[n]) for n in x]
+    
+    plt.plot(x, y, marker='o', color='#27ae60', linewidth=2.5, markersize=8,
+            label='Soluci√≥n √ìptima', alpha=0.8)
+    
+    plt.xlabel('Tama√±o de entrada (n)', fontweight='bold')
+    plt.ylabel('Valor de la soluci√≥n √≥ptima', fontweight='bold')
+    plt.title('Evoluci√≥n de la Soluci√≥n √ìptima seg√∫n Tama√±o de Entrada',
               fontweight='bold', pad=20)
     plt.legend(frameon=True, shadow=True)
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
     plt.savefig(PLOTS_DIR / '03_optimo_vs_n.png', dpi=300, bbox_inches='tight')
     plt.close()
-    print(" Gr·fico 3 generado: ”ptimo vs n")
+    print(" Gr√°fico 3 generado: √ìptimo vs n")
 
-def plot_4_time_vs_input_type(df):
-    """Gr·fico 4: Tiempo vs n comparando tipos de input (bloques vs random)"""
-    plt.figure(figsize=(12, 7))
-
-    if 'input_type' not in df.columns:
-        print("† No se encontrÛ la columna 'input_type' en los datos")
-        return
-
-    input_types = df['input_type'].unique()
-    colors = {'random': '#e74c3c', 'bloques': '#3498db', 'blocks': '#3498db'}
-    markers = {'random': 'o', 'bloques': 's', 'blocks': 's'}
-
-    # Seleccionar un algoritmo representativo (preferiblemente greedy o dynamic)
-    representative_algo = df['algorithm'].mode()[0]
-    df_filtered = df[df['algorithm'] == representative_algo]
-
-    for input_type in input_types:
-        type_data = df_filtered[df_filtered['input_type'] == input_type].groupby('n')['time_ms'].mean().reset_index()
-
-        color = colors.get(input_type, '#95a5a6')
-        marker = markers.get(input_type, '^')
-
-        plt.plot(type_data['n'], type_data['time_ms'],
-                marker=marker, color=color,
-                linewidth=2, markersize=8,
-                label=f'Input {input_type.capitalize()}', alpha=0.8)
-
-    plt.xlabel('TamaÒo de entrada (n)', fontweight='bold')
-    plt.ylabel('Tiempo de ejecuciÛn (ms)', fontweight='bold')
-    plt.title(f'Impacto del Tipo de Input en Tiempo de EjecuciÛn ({representative_algo})',
-              fontweight='bold', pad=20)
-    plt.legend(frameon=True, shadow=True)
-    plt.grid(True, alpha=0.3)
+def plot_4_time_vs_input_type(mediciones):
+    """Gr√°fico 4: Tiempo vs n comparando tipos de input para todos los algoritmos"""
+    fig, axes = plt.subplots(2, 2, figsize=(16, 12))
+    fig.suptitle('Impacto del Tipo de Input en Tiempo de Ejecuci√≥n por Algoritmo',
+                 fontweight='bold', fontsize=16, y=0.995)
+    
+    algos_order = ['brute-force', 'dynamic-programming', 'greedy1', 'greedy2']
+    
+    for idx, algo in enumerate(algos_order):
+        ax = axes[idx // 2, idx % 2]
+        
+        if algo not in mediciones:
+            ax.set_visible(False)
+            continue
+        
+        datos = mediciones[algo]
+        
+        # Separar por tipo
+        random_data = defaultdict(list)
+        bloques_data = defaultdict(list)
+        
+        for d in datos:
+            if d['tipo'] == 'random':
+                random_data[d['n']].append(d['time_ms'])
+            elif d['tipo'] == 'bloques':
+                bloques_data[d['n']].append(d['time_ms'])
+        
+        if random_data:
+            x = sorted(random_data.keys())
+            y = [np.mean(random_data[n]) for n in x]
+            ax.plot(x, y, marker='o', color='#e74c3c', linewidth=2.5, markersize=6,
+                   label='Random', alpha=0.8)
+        
+        if bloques_data:
+            x = sorted(bloques_data.keys())
+            y = [np.mean(bloques_data[n]) for n in x]
+            ax.plot(x, y, marker='s', color='#3498db', linewidth=2.5, markersize=6,
+                   label='Bloques', alpha=0.8)
+        
+        ax.set_xlabel('Tama√±o de entrada (n)', fontweight='bold')
+        ax.set_ylabel('Tiempo (ms)', fontweight='bold')
+        ax.set_title(ALGORITMOS[algo]['nombre'], fontweight='bold', pad=10)
+        ax.legend(frameon=True, shadow=True)
+        ax.grid(True, alpha=0.3)
+    
     plt.tight_layout()
     plt.savefig(PLOTS_DIR / '04_tiempo_vs_tipo_input.png', dpi=300, bbox_inches='tight')
     plt.close()
-    print(" Gr·fico 4 generado: Tiempo vs tipo de input")
+    print("‚úì Gr√°fico 4 generado: Tiempo vs tipo de input (todos los algoritmos)")
 
-def plot_5_greedy_quality(df):
-    """Gr·fico 5: Calidad de soluciÛn de greedy vs n"""
+def plot_5_greedy_quality(mediciones):
+    """Gr√°fico 5: Calidad de soluci√≥n de greedy vs n"""
     plt.figure(figsize=(12, 7))
-
-    # Identificar algoritmos greedy y el Ûptimo
-    greedy_algos = [algo for algo in df['algorithm'].unique() if 'greedy' in algo.lower()]
-    optimal_algos = ['brute-force', 'dynamic-programming']
-
-    if len(greedy_algos) == 0:
-        print("† No se encontraron algoritmos greedy")
+    
+    # Obtener valores √≥ptimos
+    if 'dynamic-programming' not in mediciones:
+        print("‚ö† No se encontraron datos para calcular calidad de greedy")
         return
-
-    # Obtener valores Ûptimos por n
-    df_optimal = df[df['algorithm'].isin(optimal_algos)]
-    optimal_by_n = df_optimal.groupby('n')['result_value'].max().reset_index()
-    optimal_by_n.rename(columns={'result_value': 'optimal_value'}, inplace=True)
-
-    colors = ['#e67e22', '#9b59b6', '#1abc9c']
-    markers = ['s', '^', 'D']
-
-    for i, greedy_algo in enumerate(greedy_algos):
-        greedy_data = df[df['algorithm'] == greedy_algo].groupby('n')['result_value'].mean().reset_index()
-
-        # Merge con valores Ûptimos para calcular calidad
-        merged = greedy_data.merge(optimal_by_n, on='n', how='inner')
-        merged['quality'] = (merged['result_value'] / merged['optimal_value']) * 100
-
-        plt.plot(merged['n'], merged['quality'],
-                marker=markers[i % len(markers)],
-                color=colors[i % len(colors)],
-                linewidth=2, markersize=8,
-                label=greedy_algo, alpha=0.8)
-
-    # LÌnea del 100% (Ûptimo)
-    if len(optimal_by_n) > 0:
-        plt.axhline(y=100, color='#27ae60', linestyle='--', linewidth=2,
-                   label='”ptimo (100%)', alpha=0.7)
-
-    plt.xlabel('TamaÒo de entrada (n)', fontweight='bold')
-    plt.ylabel('Calidad de la soluciÛn (%)', fontweight='bold')
-    plt.title('ComparaciÛn de Calidad: Algoritmos Greedy vs SoluciÛn ”ptima',
+    
+    optimos = {}
+    for d in mediciones['dynamic-programming']:
+        key = (d['n'], d['tipo'])
+        if key not in optimos or d['result'] > optimos[key]:
+            optimos[key] = d['result']
+    
+    # Calcular calidad para cada greedy
+    greedy_algos = ['greedy1', 'greedy2']
+    colors = ['#e67e22', '#9b59b6']
+    markers = ['s', '^']
+    
+    for i, greedy in enumerate(greedy_algos):
+        if greedy not in mediciones:
+            continue
+        
+        calidad_por_n = defaultdict(list)
+        
+        for d in mediciones[greedy]:
+            key = (d['n'], d['tipo'])
+            if key in optimos and optimos[key] > 0:
+                calidad = (d['result'] / optimos[key]) * 100
+                calidad_por_n[d['n']].append(calidad)
+        
+        if not calidad_por_n:
+            continue
+        
+        x = sorted(calidad_por_n.keys())
+        y = [np.mean(calidad_por_n[n]) for n in x]
+        
+        plt.plot(x, y, marker=markers[i], color=colors[i],
+                linewidth=2, markersize=6, label=ALGORITMOS[greedy]['nombre'], alpha=0.8)
+    
+    # L√≠nea del 100% (√≥ptimo)
+    plt.axhline(y=100, color='#27ae60', linestyle='--', linewidth=2,
+               label='√ìptimo (100%)', alpha=0.7)
+    
+    plt.xlabel('Tama√±o de entrada (n)', fontweight='bold')
+    plt.ylabel('Calidad de la soluci√≥n (%)', fontweight='bold')
+    plt.title('Comparaci√≥n de Calidad: Algoritmos Greedy vs Soluci√≥n √ìptima',
               fontweight='bold', pad=20)
-    plt.ylim([0, 105])
+    plt.ylim([0, 110])
     plt.legend(frameon=True, shadow=True)
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
     plt.savefig(PLOTS_DIR / '05_calidad_greedy_vs_n.png', dpi=300, bbox_inches='tight')
     plt.close()
-    print(" Gr·fico 5 generado: Calidad de greedy vs n")
+    print(" Gr√°fico 5 generado: Calidad de greedy vs n")
 
 def main():
-    """FunciÛn principal para generar todos los gr·ficos"""
-    print("\n" + "="*60)
-    print("GENERADOR DE GR¡FICOS - TAREA 2 INF221")
-    print("="*60 + "\n")
-
-    # Cargar datos
+    """Funci√≥n principal para generar todos los gr√°ficos"""
+    
     print("Cargando datos de mediciones...")
-    df = load_measurements()
+    mediciones = load_measurements()
 
-    if df is None or len(df) == 0:
-        print("\n† No hay datos para procesar.")
-        print("Aseg˙rate de tener archivos CSV en:", MEASUREMENTS_DIR)
-        print("\nFormato esperado del CSV:")
-        print("n,algorithm,input_type,time_ms,memory_kb,result_value")
+    if not mediciones or len(mediciones) == 0:
+        print("\n‚ö† No hay datos para procesar.")
+        print("Aseg√∫rate de tener archivos .txt en:", MEASUREMENTS_DIR)
         return
 
-    print(f" Datos cargados: {len(df)} registros\n")
+    total_registros = sum(len(v) for v in mediciones.values())
+    print(f" Datos cargados: {total_registros} registros\n")
 
-    # Generar los 5 gr·ficos
-    print("Generando gr·ficos...")
-    print("-" * 60)
-
-    plot_1_time_vs_n(df)
-    plot_2_memory_vs_n(df)
-    plot_3_optimal_vs_n(df)
-    plot_4_time_vs_input_type(df)
-    plot_5_greedy_quality(df)
-
-    print("-" * 60)
-    print(f"\n Todos los gr·ficos generados exitosamente en: {PLOTS_DIR}")
-    print("\nGr·ficos generados:")
-    print("  1. 01_tiempo_vs_n.png")
-    print("  2. 02_memoria_vs_n.png")
-    print("  3. 03_optimo_vs_n.png")
-    print("  4. 04_tiempo_vs_tipo_input.png")
-    print("  5. 05_calidad_greedy_vs_n.png")
-    print("\n" + "="*60 + "\n")
+    print("Generando gr√°ficos...")
+    
+    plot_1_time_vs_n(mediciones)
+    plot_2_memory_vs_n(mediciones)
+    plot_3_optimal_vs_n(mediciones)
+    plot_4_time_vs_input_type(mediciones)
+    plot_5_greedy_quality(mediciones)
+    
+    print(f"\n Todos los gr√°ficos generados exitosamente en: {PLOTS_DIR}")
 
 if __name__ == "__main__":
     main()
